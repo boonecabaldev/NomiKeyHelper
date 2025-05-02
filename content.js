@@ -1,3 +1,9 @@
+// Updated color scheme
+const FOCUS_BG_COLOR = '#b8e6b8';  // Very light green
+const BRACKET_BG_COLOR = '#ffffcc'; // Light yellow (unchanged)
+const TEXT_COLOR = '#003300';       // Very dark green (unchanged)
+const PLACEHOLDER_COLOR = '#b3d9b3'; // Medium-light green
+
 // Track original styles for restoration
 const originalStyles = new WeakMap();
 
@@ -27,9 +33,9 @@ function handleFocusIn(event) {
     });
 
     // Apply focus styles
-    target.style.backgroundColor = '#7fbf7f';
-    target.style.color = '#003300';
-    target.style.setProperty('--placeholder-color', '#7fbf7f');
+    target.style.backgroundColor = FOCUS_BG_COLOR;
+    target.style.color = TEXT_COLOR;
+    target.style.setProperty('--placeholder-color', PLACEHOLDER_COLOR);
     
     // Add event listeners
     target.addEventListener('input', handleInput);
@@ -140,8 +146,16 @@ function handleKeyDown(event) {
     if (isCursorInsideBrackets(target)) {
       const closingPos = findClosingBracketPosition(target);
       if (closingPos !== -1) {
-        target.selectionStart = closingPos + 1;
-        target.selectionEnd = closingPos + 1;
+        const newCursorPos = closingPos + 2;
+        const value = target.value;
+        
+        // Ensure we have enough characters after the closing bracket
+        if (newCursorPos > value.length) {
+          target.value = value + ' '.repeat(newCursorPos - value.length);
+        }
+        
+        target.selectionStart = newCursorPos;
+        target.selectionEnd = newCursorPos;
         event.preventDefault();
         updateBracketHighlighting(target);
         return;
