@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Text Element Formatter",
+  "version": "1.0",
+  "description": "Changes text element formatting on focus and shows key press overlays",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
