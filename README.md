@@ -1,4 +1,4 @@
-# Bracket Complete Pro
+# Nomi Key Helper
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 ![Status: Stable](https://img.shields.io/badge/status-stable-brightgreen)
