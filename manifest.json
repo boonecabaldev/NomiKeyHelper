@@ -1,14 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Smart Text Input Assistant",
+  "name": "Enhanced Text Editor",
   "version": "1.0",
-  "description": "Enhances text inputs with smart formatting and overlays.",
-  "permissions": ["activeTab", "scripting"],
+  "description": "Enhances text inputs with IDE-like features",
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "js": ["content.js"]
     }
   ]
 }
