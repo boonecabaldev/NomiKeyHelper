@@ -1,6 +1,6 @@
 .text-focus-highlight {
-  background-color: #66cc66 !important; /* medium green */
-  color: #003300 !important; /* very dark green */
+  background-color: #66cc66 !important;
+  color: #003300 !important;
 }
 
 .green-overlay {
