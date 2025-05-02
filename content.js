@@ -13,7 +13,6 @@ const BRACKET_PAIRS = {
   '[': ']',
   '{': '}',
   '"': '"',
-  "'": "'",
   '*': '*',
   '_': '_'
 };
@@ -97,6 +96,10 @@ function insertClosingBracket(target, pos, closingChar) {
 
 function handleKeyDown(event) {
   const target = event.target;
+  
+  // Add this early in the function to skip single-quote handling
+  const pressedChar = event.key;
+  if (pressedChar === "'") return; // Skip all single-quote processing
   
   // Handle backspace for bracket pairs
   if (event.key === 'Backspace') {
