@@ -1,3 +1,3 @@
 # NomiKeyHelper
 
-[ ] - Get '(' and ')' working
+- [ ] Get '(' and ')' working
