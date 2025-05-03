@@ -1,42 +1,116 @@
-// Updated color scheme
-const FOCUS_BG_COLOR = '#b8e6b8';  // Very light green
-const BRACKET_BG_COLOR = '#ffffcc'; // Light yellow (unchanged)
-const TEXT_COLOR = '#003300';       // Very dark green (unchanged)
-const PLACEHOLDER_COLOR = '#b3d9b3'; // Medium-light green
-
-// Track original styles for restoration
+// State management
+let isEnabled = true;
 const originalStyles = new WeakMap();
+const trackedElements = new WeakMap();
+let currentlyFocusedElement = null;
 
-// Bracket pairs configuration
 const BRACKET_PAIRS = {
-  '(': ')',
-  '[': ']',
-  '{': '}',
-  '"': '"',
-  '*': '*',
-  '_': '_'
+  '(': ')', '[': ']', '{': '}', '"': '"', '*': '*', '_': '_'
 };
+const FOCUS_BG_COLOR = '#b8e6b8';
+const BRACKET_BG_COLOR = '#ffffcc';
+const TEXT_COLOR = '#003300';
+const PLACEHOLDER_COLOR = '#b3d9b3';
 
-// Initialize extension
-document.addEventListener('focusin', handleFocusIn);
-document.addEventListener('focusout', handleFocusOut);
+// Initialize with stored value
+chrome.storage.sync.get(['isEnabled'], (result) => {
+  isEnabled = result.isEnabled !== false;
+  updateIndicator();
+  if (isEnabled) {
+    initializeEventListeners();
+  }
+});
+
+// Listen for toggle messages
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "toggle") {
+    isEnabled = message.isEnabled;
+    updateIndicator();
+    
+    const activeElement = document.activeElement;
+    const isActiveTextInput = activeElement && isTextInput(activeElement);
+    
+    if (isEnabled) {
+      initializeEventListeners();
+      // Highlight if focused in a text element
+      if (isActiveTextInput) {
+        currentlyFocusedElement = activeElement;
+        applyFocusStyles(currentlyFocusedElement);
+        updateBracketHighlighting(currentlyFocusedElement);
+      }
+    } else {
+      // Remove highlighting from both tracked and currently focused elements
+      if (currentlyFocusedElement) {
+        restoreOriginalStyles(currentlyFocusedElement);
+      }
+      if (isActiveTextInput && currentlyFocusedElement !== activeElement) {
+        restoreOriginalStyles(activeElement);
+      }
+      
+      removeAllEventListeners();
+      currentlyFocusedElement = null;
+    }
+  }
+});
+
+// Create and style status indicator
+const indicator = document.createElement('div');
+indicator.id = 'nomi-key-helper-indicator';
+document.body.appendChild(indicator);
+
+let hideTimeout;
+
+function updateIndicator() {
+  if (hideTimeout) clearTimeout(hideTimeout);
+  
+  indicator.textContent = `Nomi Key Helper ${isEnabled ? 'ON' : 'OFF'}`;
+  indicator.className = isEnabled ? 'on' : 'off';
+  
+  void indicator.offsetWidth;
+  indicator.classList.add('show');
+  
+  hideTimeout = setTimeout(() => {
+    indicator.classList.remove('show');
+    indicator.classList.add('hide');
+    setTimeout(() => {
+      indicator.classList.remove('hide');
+    }, 500);
+  }, 5000);
+}
+
+// Event listener management
+function initializeEventListeners() {
+  document.addEventListener('focusin', handleFocusIn);
+  document.addEventListener('focusout', handleFocusOut);
+}
+
+function removeAllEventListeners() {
+  document.removeEventListener('focusin', handleFocusIn);
+  document.removeEventListener('focusout', handleFocusOut);
+  
+  // Clean up all element listeners and restore styles
+  for (const [element, listeners] of trackedElements) {
+    element.removeEventListener('input', listeners.input);
+    element.removeEventListener('keydown', listeners.keydown);
+    restoreOriginalStyles(element);
+  }
+  trackedElements.clear();
+}
 
 function handleFocusIn(event) {
   const target = event.target;
+  currentlyFocusedElement = target;
+  
+  if (!isEnabled) return;
+  
   if (isTextInput(target)) {
-    // Save original styles
-    originalStyles.set(target, {
-      backgroundColor: target.style.backgroundColor,
-      color: target.style.color,
-      placeholderColor: getComputedStyle(target).getPropertyValue('--placeholder-color')
+    trackedElements.set(target, {
+      input: handleInput,
+      keydown: handleKeyDown
     });
-
-    // Apply focus styles
-    target.style.backgroundColor = FOCUS_BG_COLOR;
-    target.style.color = TEXT_COLOR;
-    target.style.setProperty('--placeholder-color', PLACEHOLDER_COLOR);
     
-    // Add event listeners
+    applyFocusStyles(target);
+    
     target.addEventListener('input', handleInput);
     target.addEventListener('keydown', handleKeyDown);
   }
@@ -44,42 +118,59 @@ function handleFocusIn(event) {
 
 function handleFocusOut(event) {
   const target = event.target;
+  currentlyFocusedElement = null;
+  
   if (isTextInput(target)) {
-    // Restore original styles
-    const styles = originalStyles.get(target);
-    if (styles) {
-      target.style.backgroundColor = styles.backgroundColor;
-      target.style.color = styles.color;
-      target.style.setProperty('--placeholder-color', styles.placeholderColor);
-    }
-    
-    // Remove event listeners
+    restoreOriginalStyles(target);
     target.removeEventListener('input', handleInput);
     target.removeEventListener('keydown', handleKeyDown);
+    trackedElements.delete(target);
   }
 }
 
+function applyFocusStyles(element) {
+  originalStyles.set(element, {
+    backgroundColor: element.style.backgroundColor,
+    color: element.style.color,
+    placeholderColor: getComputedStyle(element).getPropertyValue('--placeholder-color')
+  });
+
+  element.style.backgroundColor = FOCUS_BG_COLOR;
+  element.style.color = TEXT_COLOR;
+  element.style.setProperty('--placeholder-color', PLACEHOLDER_COLOR);
+}
+
+function restoreOriginalStyles(element) {
+  const styles = originalStyles.get(element);
+  if (styles) {
+    element.style.backgroundColor = styles.backgroundColor;
+    element.style.color = styles.color;
+    element.style.setProperty('--placeholder-color', styles.placeholderColor);
+  } else {
+    // Fallback to default styles if no original styles were stored
+    element.style.backgroundColor = '';
+    element.style.color = '';
+    element.style.setProperty('--placeholder-color', '');
+  }
+}
+
+// Core functionality functions
 function handleInput(event) {
+  if (!isEnabled) return;
+  
   const target = event.target;
   const value = target.value;
   const pos = target.selectionStart;
-  
-  // Get inserted character
   const insertedChar = value[pos - 1];
   
   if (BRACKET_PAIRS[insertedChar] && target.selectionStart === target.selectionEnd) {
     const closingChar = BRACKET_PAIRS[insertedChar];
     
-    // Special handling for same-character pairs
     if (insertedChar === closingChar) {
-      // Don't auto-close if:
-      // 1. Next character is already the closing char
-      // 2. Previous character is the same (avoid triples)
       if (value[pos] !== insertedChar && value[pos - 2] !== insertedChar) {
         insertClosingBracket(target, pos, closingChar);
       }
     } else {
-      // Normal different-character pairs
       insertClosingBracket(target, pos, closingChar);
     }
   }
@@ -87,21 +178,11 @@ function handleInput(event) {
   updateBracketHighlighting(target);
 }
 
-function insertClosingBracket(target, pos, closingChar) {
-  const value = target.value;
-  target.value = value.substring(0, pos) + closingChar + value.substring(pos);
-  target.selectionStart = pos;
-  target.selectionEnd = pos;
-}
-
 function handleKeyDown(event) {
+  if (!isEnabled) return;
+  
   const target = event.target;
   
-  // Add this early in the function to skip single-quote handling
-  const pressedChar = event.key;
-  if (pressedChar === "'") return; // Skip all single-quote processing
-  
-  // Handle backspace for bracket pairs
   if (event.key === 'Backspace') {
     const value = target.value;
     const pos = target.selectionStart;
@@ -110,9 +191,7 @@ function handleKeyDown(event) {
       const charBefore = value[pos - 1];
       const charAfter = value[pos];
       
-      // Check if we're deleting one of a pair
       if (BRACKET_PAIRS[charBefore] && BRACKET_PAIRS[charBefore] === charAfter) {
-        // Delete both characters
         target.value = value.substring(0, pos - 1) + value.substring(pos + 1);
         target.selectionStart = pos - 1;
         target.selectionEnd = pos - 1;
@@ -123,7 +202,6 @@ function handleKeyDown(event) {
     }
   }
   
-  // Handle delete for bracket pairs
   if (event.key === 'Delete') {
     const value = target.value;
     const pos = target.selectionStart;
@@ -133,7 +211,6 @@ function handleKeyDown(event) {
       const charAfter = value[pos + 1];
       
       if (BRACKET_PAIRS[charBefore] && BRACKET_PAIRS[charBefore] === charAfter) {
-        // Delete both characters
         target.value = value.substring(0, pos) + value.substring(pos + 2);
         target.selectionStart = pos;
         target.selectionEnd = pos;
@@ -144,7 +221,6 @@ function handleKeyDown(event) {
     }
   }
   
-  // Handle Tab key behavior
   if (event.key === 'Tab') {
     if (isCursorInsideBrackets(target)) {
       const closingPos = findClosingBracketPosition(target);
@@ -152,7 +228,6 @@ function handleKeyDown(event) {
         const newCursorPos = closingPos + 2;
         const value = target.value;
         
-        // Ensure we have enough characters after the closing bracket
         if (newCursorPos > value.length) {
           target.value = value + ' '.repeat(newCursorPos - value.length);
         }
@@ -164,10 +239,17 @@ function handleKeyDown(event) {
         return;
       }
     }
-    // Allow normal tab behavior if not inside brackets
   }
   
   updateBracketHighlighting(target);
+}
+
+// Helper functions (unchanged from previous implementation)
+function insertClosingBracket(target, pos, closingChar) {
+  const value = target.value;
+  target.value = value.substring(0, pos) + closingChar + value.substring(pos);
+  target.selectionStart = pos;
+  target.selectionEnd = pos;
 }
 
 function isCursorInsideBrackets(target) {
@@ -176,25 +258,22 @@ function isCursorInsideBrackets(target) {
   
   for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
     if (open === close) {
-      // Special handling for same-character pairs like "", '', **
       let countBefore = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) countBefore++;
       }
       
-      // If odd number before cursor, we're inside a pair
       if (countBefore % 2 === 1) {
         let countAfter = 0;
         for (let i = pos; i < value.length; i++) {
           if (value[i] === close) {
             countAfter++;
-            break; // Found closing character
+            break;
           }
         }
         if (countAfter > 0) return true;
       }
     } else {
-      // Normal different-character pairs
       let openCount = 0;
       let closeCount = 0;
       
@@ -222,14 +301,12 @@ function findClosingBracketPosition(target) {
   
   for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
     if (open === close) {
-      // Handle same-character pairs
       let count = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) count++;
       }
       
       if (count % 2 === 1) {
-        // Find the next occurrence of the same character
         for (let i = pos; i < value.length; i++) {
           if (value[i] === close) {
             return i;
@@ -237,7 +314,6 @@ function findClosingBracketPosition(target) {
         }
       }
     } else {
-      // Handle different-character pairs
       let balance = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) balance++;
@@ -261,10 +337,12 @@ function findClosingBracketPosition(target) {
 }
 
 function updateBracketHighlighting(target) {
+  if (!isEnabled) return;
+  
   if (isCursorInsideBrackets(target)) {
-    target.style.backgroundColor = '#ffffcc';
+    target.style.backgroundColor = BRACKET_BG_COLOR;
   } else {
-    target.style.backgroundColor = '#7fbf7f';
+    target.style.backgroundColor = FOCUS_BG_COLOR;
   }
 }
 
@@ -289,3 +367,6 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// Initial update
+updateIndicator();

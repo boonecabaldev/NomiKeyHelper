@@ -1,12 +1,29 @@
 {
   "manifest_version": 3,
-  "name": "Enhanced Text Editor",
+  "name": "Nomi Key Helper",
   "version": "1.0",
-  "description": "Enhances text inputs with IDE-like features",
+  "description": "Enhanced text editor with toggle functionality (Ctrl+M)",
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["content.css"]
     }
-  ]
+  ],
+  "commands": {
+    "toggle-feature": {
+      "suggested_key": {
+        "default": "Ctrl+M",
+        "mac": "Command+M"
+      },
+      "description": "Toggle extension functionality"
+    }
+  },
+  "permissions": ["storage", "activeTab"],
+  "action": {
+    "default_title": "Toggle Nomi Key Helper"
+  }
 }
