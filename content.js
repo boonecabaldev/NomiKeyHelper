@@ -12,26 +12,33 @@ const BRACKET_BG_COLOR = '#ffffcc';
 const TEXT_COLOR = '#003300';
 const PLACEHOLDER_COLOR = '#b3d9b3';
 
-// Initialize with stored value
+// Remove the initial updateIndicator() call completely
 chrome.storage.sync.get(['isEnabled'], (result) => {
   isEnabled = result.isEnabled !== false;
-  updateIndicator();
   if (isEnabled) {
     initializeEventListeners();
+    if (document.activeElement && isTextInput(document.activeElement)) {
+      handleFocusIn({ target: document.activeElement });
+    }
   }
 });
 
+// Modified message listener
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "toggle") {
     isEnabled = message.isEnabled;
-    updateIndicator();
     
+    // Only show indicator if explicitly requested
+    if (message.showIndicator) {
+      updateIndicator();
+    }
+    
+    // Rest of your toggle handling logic...
     const activeElement = document.activeElement;
     const isActiveTextInput = activeElement && isTextInput(activeElement);
     
     if (isEnabled) {
       initializeEventListeners();
-      // Re-initialize event listeners for currently focused element
       if (isActiveTextInput) {
         currentlyFocusedElement = activeElement;
         trackedElements.set(activeElement, {
@@ -44,14 +51,12 @@ chrome.runtime.onMessage.addListener((message) => {
         updateBracketHighlighting(activeElement);
       }
     } else {
-      // Remove highlighting from both tracked and currently focused elements
       if (currentlyFocusedElement) {
         restoreOriginalStyles(currentlyFocusedElement);
         currentlyFocusedElement.removeEventListener('input', handleInput);
         currentlyFocusedElement.removeEventListener('keydown', handleKeyDown);
         trackedElements.delete(currentlyFocusedElement);
       }
-      
       removeAllEventListeners();
       currentlyFocusedElement = null;
     }
