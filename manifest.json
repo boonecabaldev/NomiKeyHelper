@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Nomi Key Helper",
   "version": "1.0",
-  "description": "Enhanced text editor with toggle functionality (Ctrl+M)",
+  "description": "Enhanced text editor with toggle functionality (Ctrl+M) and word definitions popup",
   "background": {
     "service_worker": "background.js"
   },
@@ -22,8 +22,9 @@
       "description": "Toggle extension functionality"
     }
   },
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "tabs"],
   "action": {
-    "default_title": "Toggle Nomi Key Helper"
+    "default_title": "Toggle Nomi Key Helper",
+    "default_popup": "popup.html"
   }
 }

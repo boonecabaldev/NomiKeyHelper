@@ -1,0 +1,150 @@
+body {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 600px; /* Increased from 500px */
+  min-height: 800px; /* Unchanged, already tall */
+  background: linear-gradient(135deg, #e6f3e6 0%, #b8e6b8 100%);
+  color: #003300;
+  overflow-y: auto;
+  position: relative; /* Needed for absolute positioning of feedback */
+}
+
+.container {
+  padding: 15px 35px 30px 35px; /* Increased horizontal padding from 30px to 35px */
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  color: #2E7D32;
+  margin-bottom: 15px;
+}
+
+.accordion {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #ffffff;
+}
+
+.accordion-item {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+.accordion-header {
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
+  padding: 15px;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  transition: background 0.3s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.accordion-header:hover {
+  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  transform: translateY(-2px);
+}
+
+.accordion-header.active {
+  background: linear-gradient(135deg, #81C784 0%, #66BB6A 100%);
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.accordion-header::after {
+  content: '\25BC'; /* Down arrow */
+  position: absolute;
+  right: 15px;
+  font-size: 0.9rem;
+  transition: transform 0.3s ease;
+}
+
+.accordion-header.active::after {
+  transform: rotate(180deg); /* Up arrow when expanded */
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow-y: auto; /* Allow scrolling within content */
+  background: #ffffff;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.accordion-content.open {
+  max-height: 1500px; /* Increased from 1400px for wider/taller layout */
+  padding: 15px;
+}
+
+.card {
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #f9f9f9;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeIn 0.5s ease;
+  cursor: pointer; /* Indicate it's clickable for copying */
+  position: relative; /* For positioning the feedback message */
+}
+
+.card:last-child {
+  margin-bottom: 0; /* Remove margin-bottom for the last card */
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.card-body {
+  padding: 10px;
+}
+
+.card-title {
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0 0 5px;
+}
+
+.card-text {
+  color: #333;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Style for the copy feedback message */
+.copy-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  opacity: 0;
+  animation: fadeOut 1.5s forwards;
+  z-index: 10; /* Ensure it's above other content */
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}

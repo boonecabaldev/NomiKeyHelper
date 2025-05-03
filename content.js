@@ -60,6 +60,11 @@ chrome.runtime.onMessage.addListener((message) => {
       removeAllEventListeners();
       currentlyFocusedElement = null;
     }
+  } else if (message.action === 'insertTerm' && isEnabled) {
+    // Handle term insertion from popup
+    if (currentlyFocusedElement && isTextInput(currentlyFocusedElement)) {
+      insertText(currentlyFocusedElement, message.term);
+    }
   }
 });
 
@@ -164,6 +169,29 @@ function restoreOriginalStyles(element) {
   }
 }
 
+// Insert text into the active text element
+function insertText(element, term) {
+  if (!isEnabled || !isTextInput(element)) return;
+
+  if (element.isContentEditable) {
+    // For contenteditable elements
+    document.execCommand('insertText', false, term);
+  } else if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+    // For textarea and input elements
+    const start = element.selectionStart;
+    const end = element.selectionEnd;
+    const text = element.value;
+    const newText = text.substring(0, start) + term + text.substring(end);
+    element.value = newText;
+    // Move cursor to after inserted term
+    element.selectionStart = element.selectionEnd = start + term.length;
+  }
+  // Trigger input event to notify listeners
+  element.dispatchEvent(new Event('input', { bubbles: true }));
+  // Update bracket highlighting after insertion
+  updateBracketHighlighting(element);
+}
+
 // Core functionality functions
 function handleInput(event) {
   if (!isEnabled) return;
@@ -254,7 +282,7 @@ function handleKeyDown(event) {
   updateBracketHighlighting(target);
 }
 
-// Helper functions (unchanged from previous implementation)
+// Helper functions
 function insertClosingBracket(target, pos, closingChar) {
   const value = target.value;
   target.value = value.substring(0, pos) + closingChar + value.substring(pos);
