@@ -1,7 +1,7 @@
-let isEnabled = true;
+let isEnabled = false; // Default state set to false
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({ isEnabled: true });
+  chrome.storage.sync.set({ isEnabled: false }); // Set initial stored state to false
 });
 
 chrome.commands.onCommand.addListener((command) => {
