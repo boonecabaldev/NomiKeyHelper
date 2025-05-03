@@ -1,5 +1,5 @@
 // State management
-let isEnabled = false; // Default state set to false
+let isEnabled = true;
 const originalStyles = new WeakMap();
 const trackedElements = new WeakMap();
 let currentlyFocusedElement = null;
@@ -14,7 +14,7 @@ const PLACEHOLDER_COLOR = '#b3d9b3';
 
 // Initialize with stored value
 chrome.storage.sync.get(['isEnabled'], (result) => {
-  isEnabled = result.isEnabled === true; // Only enable if explicitly set to true
+  isEnabled = result.isEnabled !== false;
   updateIndicator();
   if (isEnabled) {
     initializeEventListeners();
@@ -32,12 +32,14 @@ chrome.runtime.onMessage.addListener((message) => {
     
     if (isEnabled) {
       initializeEventListeners();
+      // Highlight if focused in a text element
       if (isActiveTextInput) {
         currentlyFocusedElement = activeElement;
         applyFocusStyles(currentlyFocusedElement);
         updateBracketHighlighting(currentlyFocusedElement);
       }
     } else {
+      // Remove highlighting from both tracked and currently focused elements
       if (currentlyFocusedElement) {
         restoreOriginalStyles(currentlyFocusedElement);
       }
@@ -86,6 +88,7 @@ function removeAllEventListeners() {
   document.removeEventListener('focusin', handleFocusIn);
   document.removeEventListener('focusout', handleFocusOut);
   
+  // Clean up all element listeners and restore styles
   for (const [element, listeners] of trackedElements) {
     element.removeEventListener('input', listeners.input);
     element.removeEventListener('keydown', listeners.keydown);
@@ -144,6 +147,7 @@ function restoreOriginalStyles(element) {
     element.style.color = styles.color;
     element.style.setProperty('--placeholder-color', styles.placeholderColor);
   } else {
+    // Fallback to default styles if no original styles were stored
     element.style.backgroundColor = '';
     element.style.color = '';
     element.style.setProperty('--placeholder-color', '');
@@ -240,7 +244,7 @@ function handleKeyDown(event) {
   updateBracketHighlighting(target);
 }
 
-// Helper functions
+// Helper functions (unchanged from previous implementation)
 function insertClosingBracket(target, pos, closingChar) {
   const value = target.value;
   target.value = value.substring(0, pos) + closingChar + value.substring(pos);
