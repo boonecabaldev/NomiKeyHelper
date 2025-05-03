@@ -1,11 +1,11 @@
-let isEnabled = false; // Default state set to false
+let isEnabled = true;
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({ isEnabled: false }); // Set initial stored state to false
+  chrome.storage.sync.set({ isEnabled: true });
 });
 
 chrome.commands.onCommand.addListener((command) => {
-  if (command === "toggle-feature") {
+  if (command === "toggle") {
     toggleExtension();
   }
 });
