@@ -16,16 +16,17 @@ chrome.action.onClicked.addListener(() => {
 
 function toggleExtension() {
   isEnabled = !isEnabled;
-  chrome.storage.sync.set({ isEnabled });
-  
-  chrome.tabs.query({}, (tabs) => {
-    tabs.forEach(tab => {
-      if (tab.id) {
-        chrome.tabs.sendMessage(tab.id, { 
-          action: "toggle", 
-          isEnabled 
-        });
-      }
+  chrome.storage.sync.set({ isEnabled }, () => {
+    // Send message after storage is updated
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach(tab => {
+        if (tab.id) {
+          chrome.tabs.sendMessage(tab.id, { 
+            action: "toggle", 
+            isEnabled 
+          });
+        }
+      });
     });
   });
   

@@ -21,7 +21,6 @@ chrome.storage.sync.get(['isEnabled'], (result) => {
   }
 });
 
-// Listen for toggle messages
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "toggle") {
     isEnabled = message.isEnabled;
@@ -32,19 +31,25 @@ chrome.runtime.onMessage.addListener((message) => {
     
     if (isEnabled) {
       initializeEventListeners();
-      // Highlight if focused in a text element
+      // Re-initialize event listeners for currently focused element
       if (isActiveTextInput) {
         currentlyFocusedElement = activeElement;
-        applyFocusStyles(currentlyFocusedElement);
-        updateBracketHighlighting(currentlyFocusedElement);
+        trackedElements.set(activeElement, {
+          input: handleInput,
+          keydown: handleKeyDown
+        });
+        activeElement.addEventListener('input', handleInput);
+        activeElement.addEventListener('keydown', handleKeyDown);
+        applyFocusStyles(activeElement);
+        updateBracketHighlighting(activeElement);
       }
     } else {
       // Remove highlighting from both tracked and currently focused elements
       if (currentlyFocusedElement) {
         restoreOriginalStyles(currentlyFocusedElement);
-      }
-      if (isActiveTextInput && currentlyFocusedElement !== activeElement) {
-        restoreOriginalStyles(activeElement);
+        currentlyFocusedElement.removeEventListener('input', handleInput);
+        currentlyFocusedElement.removeEventListener('keydown', handleKeyDown);
+        trackedElements.delete(currentlyFocusedElement);
       }
       
       removeAllEventListeners();
