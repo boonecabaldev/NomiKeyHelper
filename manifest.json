@@ -22,7 +22,7 @@
       "description": "Toggle extension functionality"
     }
   },
-  "permissions": ["storage", "activeTab", "tabs"],
+  "permissions": ["storage", "activeTab", "tabs", "clipboardWrite"],
   "action": {
     "default_title": "Toggle Nomi Key Helper",
     "default_popup": "popup.html"
