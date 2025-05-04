@@ -225,6 +225,27 @@ const wordData = [
       {
         term: "Zealous",
         definition: "Demonstrating fervent enthusiasm or devotion, often with intense commitment to a cause or goal."
+      },
+      // New terms added below
+      {
+        term: "Affectionate",
+        definition: "Expressing warmth and fondness, often through caring or loving gestures and words."
+      },
+      {
+        term: "Charmed",
+        definition: "Feeling delighted or captivated, often by something pleasing or enchanting."
+      },
+      {
+        term: "Exhilarated",
+        definition: "Experiencing intense excitement and energy, often due to a thrilling or uplifting event."
+      },
+      {
+        term: "Harmonious",
+        definition: "Exhibiting agreement or compatibility, often creating a sense of balance and peace."
+      },
+      {
+        term: "Warmhearted",
+        definition: "Showing kindness and compassion, often fostering a sense of comfort and connection."
       }
     ]
   },
@@ -299,12 +320,18 @@ const wordData = [
         term: "Nervous",
         definition: "Feeling apprehensive or uneasy, often accompanied by physical signs like trembling or sweating."
       },
-      { term: "Peeved", definition: "Feeling mildly irritated or annoyed, often over a petty or trivial matter." },
+      {
+        term: "Peeved",
+        definition: "Feeling mildly irritated or annoyed, often over a petty or trivial matter."
+      },
       {
         term: "Sad",
         definition: "Experiencing or expressing sorrow or unhappiness, often due to loss, disappointment, or hardship."
       },
-      { term: "Scared", definition: "Feeling fear or fright, often triggered by a sudden or perceived danger." },
+      {
+        term: "Scared",
+        definition: "Feeling fear or fright, often triggered by a sudden or perceived danger."
+      },
       {
         term: "Sorrowful",
         definition: "Feeling or expressing deep sadness or grief, often with a heavy-hearted or mournful tone."
@@ -317,12 +344,39 @@ const wordData = [
         term: "Unhappy",
         definition: "Feeling or displaying a lack of happiness, often due to dissatisfaction or negative circumstances."
       },
-      { term: "Upset", definition: "Feeling unhappy or unsettled, often due to an unexpected or disappointing event." },
+      {
+        term: "Upset",
+        definition: "Feeling unhappy or unsettled, often due to an unexpected or disappointing event."
+      },
       {
         term: "Vexed",
         definition: "Feeling annoyed or frustrated, often due to a perplexing or irritating situation."
       },
-      { term: "Worried", definition: "Experiencing concern or anxiety about potential problems or uncertain outcomes." }
+      {
+        term: "Worried",
+        definition: "Experiencing concern or anxiety about potential problems or uncertain outcomes."
+      },
+      // New terms added below
+      {
+        term: "Bothered",
+        definition: "Feeling disturbed or annoyed, often due to a minor inconvenience or persistent irritation."
+      },
+      {
+        term: "Displeased",
+        definition: "Experiencing mild dissatisfaction or annoyance, often due to an unfavorable situation."
+      },
+      {
+        term: "Frightened",
+        definition: "Feeling intense fear or alarm, often in response to a sudden or threatening situation."
+      },
+      {
+        term: "Rattled",
+        definition: "Feeling shaken or unnerved, often due to a surprising or unsettling event."
+      },
+      {
+        term: "Weary",
+        definition: "Feeling exhausted or emotionally drained, often due to prolonged stress or effort."
+      }
     ]
   },
   {
@@ -354,7 +408,10 @@ const wordData = [
         definition:
           "Distrusting others' motives, believing people act out of self-interest, often with a sarcastic tone."
       },
-      { term: "Dejected", definition: "Feeling low-spirited or disheartened, often due to disappointment or failure." },
+      {
+        term: "Dejected",
+        definition: "Feeling low-spirited or disheartened, often due to disappointment or failure."
+      },
       {
         term: "Disappointed",
         definition: "Feeling sadness or dissatisfaction when expectations or hopes are not met by people or events."
@@ -434,6 +491,27 @@ const wordData = [
         term: "Skeptical",
         definition:
           "Questioning or doubting the truth or reliability of something, often with a cautious or critical attitude."
+      },
+      // New terms added below
+      {
+        term: "Disillusioned",
+        definition: "Feeling disappointed after losing faith or trust, often due to unmet ideals or expectations."
+      },
+      {
+        term: "Exasperated",
+        definition: "Feeling intensely irritated or frustrated, often due to repeated obstacles or annoyances."
+      },
+      {
+        term: "Pessimistic",
+        definition: "Expecting the worst possible outcome, often viewing situations with doubt or negativity."
+      },
+      {
+        term: "Spiteful",
+        definition: "Feeling or showing a desire to harm or upset others, often out of malice or resentment."
+      },
+      {
+        term: "Wretched",
+        definition: "Experiencing deep misery or distress, often feeling utterly hopeless or unfortunate."
       }
     ]
   },
@@ -537,6 +615,27 @@ const wordData = [
       {
         term: "Wary",
         definition: "Feeling cautious or suspicious, often alert to potential dangers or risks in a situation."
+      },
+      // New terms added below
+      {
+        term: "Conflicted",
+        definition: "Experiencing internal struggle between opposing feelings or desires, often leading to indecision."
+      },
+      {
+        term: "Numb",
+        definition: "Feeling emotionally detached or unresponsive, often due to shock, grief, or overload."
+      },
+      {
+        term: "Poignant",
+        definition: "Evoking a keen sense of sadness or regret, often deeply moving or touching."
+      },
+      {
+        term: "Restless",
+        definition: "Feeling unable to relax or stay still, often due to anxiety, boredom, or unease."
+      },
+      {
+        term: "Torn",
+        definition: "Feeling divided between two choices or emotions, often resulting in emotional tension or indecision."
       }
     ]
   },
@@ -714,7 +813,10 @@ const wordData = [
         term: "Stable",
         definition: "Not likely to change or fail, often providing a sense of reliability or consistency."
       },
-      { term: "Steady", definition: "Firmly fixed or constant, often maintaining a calm and even pace or progress." },
+      {
+        term: "Steady",
+        definition: "Firmly fixed or constant, often maintaining a calm and even pace or progress."
+      },
       {
         term: "Strategic",
         definition: "Planned or coordinated carefully, often with a focus on achieving long-term goals."
@@ -735,7 +837,10 @@ const wordData = [
         term: "Thorough",
         definition: "Performed with great care and completeness, often leaving no detail overlooked."
       },
-      { term: "Unassuming", definition: "Not drawing attention to oneself, often modest or lacking in pretension." },
+      {
+        term: "Unassuming",
+        definition: "Not drawing attention to oneself, often modest or lacking in pretension."
+      },
       {
         term: "Versatile",
         definition: "Capable of adapting to many different functions or activities, often multi-skilled."
@@ -743,6 +848,27 @@ const wordData = [
       {
         term: "Watchful",
         definition: "Carefully observing or monitoring, often alert to potential changes or dangers."
+      },
+      // New terms added below
+      {
+        term: "Coherent",
+        definition: "Logical and consistent in structure or thought, often clear and easy to understand."
+      },
+      {
+        term: "Pragmatic",
+        definition: "Approaching situations practically and realistically, often focusing on effective solutions."
+      },
+      {
+        term: "Proactive",
+        definition: "Taking initiative to address issues or opportunities, often acting before being prompted."
+      },
+      {
+        term: "Reliable",
+        definition: "Consistently dependable in performance or behavior, often trustworthy and steady."
+      },
+      {
+        term: "Transparent",
+        definition: "Open and clear in actions or intentions, often fostering trust through honesty."
       }
     ]
   },
@@ -1021,128 +1147,7 @@ const wordData = [
           "Intentionally provoking anger or controversy, often incendiary, creating a heated and divisive conversational tone."
       },
       {
-        term: "Informal",
-        definition:
-          "Relaxed and free from strict conventions, often friendly and colloquial, creating a comfortable and approachable conversational tone."
-      },
-      {
-        term: "Inquisitive",
-        definition: "Showing a strong desire to investigate or learn, often asking questions to deepen understanding."
-      },
-      {
-        term: "Inspiring",
-        definition:
-          "Motivating and uplifting others, often with enthusiasm or vision, creating an encouraging and aspirational conversational tone."
-      },
-      {
-        term: "Intimate",
-        definition:
-          "Warm and personal, often sharing deep or private thoughts, creating a close and trusting conversational tone."
-      },
-      {
-        term: "Ironic",
-        definition: "Using words to convey the opposite of their literal meaning, often with a subtle or mocking tone."
-      },
-      {
-        term: "Jovial",
-        definition:
-          "Full of hearty cheer and good humor, often creating a festive and uplifting conversational atmosphere."
-      },
-      {
-        term: "Lighthearted",
-        definition:
-          "Cheerful and carefree, often avoiding heavy topics, creating a relaxed and enjoyable conversational tone."
-      },
-      {
-        term: "Mocking",
-        definition:
-          "Ridiculing or teasing with contempt, often sarcastic or derisive, creating a belittling and provocative conversational tone."
-      },
-      {
-        term: "Monotone",
-        definition:
-          "Lacking variation in pitch or expression, often flat or unemotional, creating a dull conversational tone."
-      },
-      {
-        term: "Nonchalant",
-        definition:
-          "Casually unconcerned or indifferent, often relaxed, creating a detached and carefree conversational tone."
-      },
-      {
-        term: "Objective",
-        definition:
-          "Based on facts rather than feelings, often uninfluenced by emotions, maintaining a neutral conversational tone."
-      },
-      {
-        term: "Patronizing",
-        definition:
-          "Speaking as if to someone less knowledgeable, often with a superior tone, creating irritation or resentment."
-      },
-      {
-        term: "Persuasive",
-        definition:
-          "Aiming to convince others with compelling arguments, often confident and articulate in conversational style."
-      },
-      {
-        term: "Playful",
-        definition: "Fond of lighthearted fun or teasing, often bringing joy and spontaneity to the conversation."
-      },
-      {
-        term: "Pleading",
-        definition:
-          "Expressing earnest or desperate requests, often emotional, creating a tone of urgency or supplication in conversation."
-      },
-      {
-        term: "Polite",
-        definition: "Showing courteous and respectful manners, often formal or considerate, maintaining a civil tone."
-      },
-      {
-        term: "Provocative",
-        definition:
-          "Intentionally stimulating strong reactions or debate, often bold, creating a challenging and thought-provoking conversational tone."
-      },
-      {
-        term: "Quizzical",
-        definition:
-          "Expressing mild confusion or curiosity, often with a questioning tone, creating a puzzled or inquisitive conversational mood."
-      },
-      {
-        term: "Reassuring",
-        definition:
-          "Offering comfort or confidence, often calming fears, creating a supportive and soothing conversational tone."
-      },
-      {
-        term: "Respectful",
-        definition:
-          "Showing courtesy and regard for others, often polite, creating a considerate and dignified conversational tone."
-      },
-      {
-        term: "Reticent",
-        definition:
-          "Reserved or reluctant to speak freely, often quiet, creating a restrained and cautious conversational tone."
-      },
-      {
-        term: "Sarcastic",
-        definition:
-          "Using irony to mock or convey contempt, often sharp or biting, creating a mocking conversational tone."
-      },
-      {
-        term: "Sincere",
-        definition:
-          "Genuine and honest in expression, often heartfelt, fostering trust and authenticity in the conversation."
-      },
-      {
-        term: "Skeptical",
-        definition:
-          "Questioning or doubting the truth of statements, often cautious or critical, creating a probing tone."
-      },
-      {
-        term: "Snide",
-        definition:
-          "Slyly derogatory or mocking, often indirect, creating a subtle but cutting and contemptuous conversational tone."
-      },
-      {
-        term: "Solemn",
+        term: " Solemn",
         definition:
           "Marked by seriousness or gravity, often formal and restrained, creating a dignified conversational tone."
       },
@@ -1190,6 +1195,32 @@ const wordData = [
         term: "Witty",
         definition:
           "Displaying quick and clever humor, often with sharp or insightful remarks, enhancing conversational charm."
+      },
+      // New terms added below
+      {
+        term: "Boisterous",
+        definition:
+          "Loud and energetic in manner, often cheerful but potentially overwhelming, creating a lively conversational tone."
+      },
+      {
+        term: "Compassionate",
+        definition:
+          "Showing deep care and empathy for others' suffering, often fostering a warm and supportive conversational tone."
+      },
+      {
+        term: "Glib",
+        definition:
+          "Speaking fluently but often superficially, sometimes insincere, creating a smooth but potentially untrustworthy tone."
+      },
+      {
+        term: "Outspoken",
+        definition:
+          "Expressing opinions freely and boldly, often direct, creating a confident but potentially provocative conversational tone."
+      },
+      {
+        term: "Whimsical",
+        definition:
+          "Playfully quaint or fanciful in manner, often lighthearted, creating a quirky and imaginative conversational tone."
       }
     ]
   }
@@ -1248,7 +1279,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-  
+
   // Function to copy text to clipboard
   const copyToClipboard = (str) => {
     const el = document.createElement("textarea");
