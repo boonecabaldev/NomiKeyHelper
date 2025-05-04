@@ -137,19 +137,19 @@ body {
 }
 
 .card-body {
-  padding: 8px;
+  padding: 7px;
 }
 
 .card-title {
   color: #4CAF50;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.85rem;
   margin: 0 0 5px;
 }
 
 .card-text {
   color: #333;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   margin: 0;
 }
 
