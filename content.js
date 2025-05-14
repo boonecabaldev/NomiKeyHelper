@@ -5,12 +5,26 @@ const trackedElements = new WeakMap();
 let currentlyFocusedElement = null;
 
 const BRACKET_PAIRS = {
-  '(': ')', '[': ']', '{': '}', '"': '"', '*': '*', '_': '_'
+  '(': ')', '[': ']', '{': '}', '"': '"', '*': '*'
 };
 const FOCUS_BG_COLOR = '#b8e6b8';
 const BRACKET_BG_COLOR = '#ffffcc';
 const TEXT_COLOR = '#003300';
 const PLACEHOLDER_COLOR = '#b3d9b3';
+
+function initializeEventListeners() {
+  document.addEventListener('focusin', handleFocusIn);
+  document.addEventListener('focusout', handleFocusOut);
+  
+  // Add click listener for cursor positioning
+  document.addEventListener('click', (event) => {
+    if (isTextInput(event.target)) {
+      setTimeout(() => {
+        updateBracketHighlighting(event.target);
+      }, 0);
+    }
+  });
+}
 
 // Remove the initial updateIndicator() call completely
 chrome.storage.sync.get(['isEnabled'], (result) => {
@@ -254,6 +268,14 @@ function handleKeyDown(event) {
     }
   }
   
+  // Handle arrow keys
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+    // Use setTimeout to check cursor position after it moves
+    setTimeout(() => {
+      updateBracketHighlighting(target);
+    }, 0);
+  }
+  
   if (event.key === 'Delete') {
     const value = target.value;
     const pos = target.selectionStart;
@@ -394,7 +416,7 @@ function findClosingBracketPosition(target) {
 }
 
 function updateBracketHighlighting(target) {
-  if (!isEnabled) return;
+  if (!isEnabled || !target) return;
   
   // If the input is empty or has no value, it should never be highlighted
   if (!target.value || target.value.length === 0) {
@@ -404,6 +426,8 @@ function updateBracketHighlighting(target) {
   
   const pos = target.selectionStart;
   const value = target.value;
+  
+  // Check if cursor is between matching brackets
   let isBetweenBrackets = false;
   
   for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
@@ -425,28 +449,18 @@ function updateBracketHighlighting(target) {
         if (value[i] === close) balance--;
       }
       if (balance > 0) {
-        let closingPos = -1;
         for (let i = pos; i < value.length; i++) {
-          if (value[i] === open) balance++;
-          if (value[i] === close) balance--;
-          if (balance === 0) {
-            closingPos = i;
+          if (value[i] === close) {
+            isBetweenBrackets = true;
             break;
           }
         }
-        if (closingPos !== -1) {
-          isBetweenBrackets = true;
-          break;
-        }
+        if (isBetweenBrackets) break;
       }
     }
   }
   
-  if (isBetweenBrackets) {
-    target.style.backgroundColor = BRACKET_BG_COLOR;
-  } else {
-    target.style.backgroundColor = FOCUS_BG_COLOR;
-  }
+  target.style.backgroundColor = isBetweenBrackets ? BRACKET_BG_COLOR : FOCUS_BG_COLOR;
 }
 
 function isTextInput(element) {
