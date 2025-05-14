@@ -1,3 +1,4 @@
+
 # ToDo
 
 This document describes a subset of the functionality of the NomiKeyHelper Chrome browser extension.
@@ -13,8 +14,17 @@ I'm using a chat program where you enter text and then press Enter to submit the
 |Step #|Key Pressed|Result Text & Cursor State|Textbox Highlighted?|
 |--|--|--|--|
 | 0. |  | '' | N |
-| 1. | '(' | '(_)' | N |
+| 1. | '(' | '(_)' | Y |
 | 2. | 'X' | '(X_)' | Y |
-| 3. | Enter | '' | N |
+| 3. | Backspace | '(X)_' | N |
 
-After pressing Enter in the above scenario, the textbox clears but remains highlighted. Remember that if it is ever the case that the cursor is not enclosed in bracket characters, then the textbox should be unhighlighted. This includes the case where the user clicks in or out of the textbox.
+Ensure that this extension conforms to/passes the above scenario.
+
+Currently, the extension is producing the following bad behavior:
+
+|Step #|Key Pressed|Result Text & Cursor State|Textbox Highlighted?|
+|--|--|--|--|
+| 0. |  | '' | N |
+| 1. | '(' | '(_)' | Y |
+| 2. | 'X' | '(X_)' | Y |
+| 3. | Backspace | '(_))' | N |

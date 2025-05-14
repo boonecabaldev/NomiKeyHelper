@@ -111,6 +111,24 @@ function updateIndicator() {
 function initializeEventListeners() {
   document.addEventListener('focusin', handleFocusIn);
   document.addEventListener('focusout', handleFocusOut);
+  
+  // Add click listener for text inputs
+  document.addEventListener('click', (event) => {
+    if (isTextInput(event.target)) {
+      setTimeout(() => {
+        updateBracketHighlighting(event.target);
+      }, 0);
+    }
+  });
+  
+  // Add selectionchange listener for cursor movements
+  document.addEventListener('selectionchange', () => {
+    if (currentlyFocusedElement && isTextInput(currentlyFocusedElement)) {
+      setTimeout(() => {
+        updateBracketHighlighting(currentlyFocusedElement);
+      }, 0);
+    }
+  });
 }
 
 function removeAllEventListeners() {
@@ -268,9 +286,8 @@ function handleKeyDown(event) {
     }
   }
   
-  // Handle arrow keys
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
-    // Use setTimeout to check cursor position after it moves
+// Handle arrow keys and other cursor-moving keys
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
     setTimeout(() => {
       updateBracketHighlighting(target);
     }, 0);
@@ -418,7 +435,7 @@ function findClosingBracketPosition(target) {
 function updateBracketHighlighting(target) {
   if (!isEnabled || !target) return;
   
-  // If the input is empty or has no value, it should never be highlighted
+  // Clear any existing highlight if input is empty
   if (!target.value || target.value.length === 0) {
     target.style.backgroundColor = FOCUS_BG_COLOR;
     return;
@@ -426,13 +443,12 @@ function updateBracketHighlighting(target) {
   
   const pos = target.selectionStart;
   const value = target.value;
-  
-  // Check if cursor is between matching brackets
   let isBetweenBrackets = false;
   
+  // Check all bracket types
   for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
     if (open === close) {
-      // For same-character pairs (like quotes)
+      // Handle same-character wrappers (like quotes)
       let count = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) count++;
@@ -442,12 +458,14 @@ function updateBracketHighlighting(target) {
         break;
       }
     } else {
-      // For different-character pairs (like parentheses)
+      // Handle different-character pairs (like parentheses)
       let balance = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) balance++;
         if (value[i] === close) balance--;
       }
+      
+      // Only highlight if we're between matching pair
       if (balance > 0) {
         for (let i = pos; i < value.length; i++) {
           if (value[i] === close) {
@@ -460,6 +478,7 @@ function updateBracketHighlighting(target) {
     }
   }
   
+  // Apply highlighting
   target.style.backgroundColor = isBetweenBrackets ? BRACKET_BG_COLOR : FOCUS_BG_COLOR;
 }
 
