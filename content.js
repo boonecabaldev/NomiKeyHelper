@@ -229,6 +229,20 @@ function handleKeyDown(event) {
       const charBefore = value[pos - 1];
       const charAfter = value[pos];
       
+      // Case 1: Deleting a normal character between brackets (like 'X' in '(X_)')
+      if (charBefore && charAfter && 
+          !BRACKET_PAIRS[charBefore] && 
+          !Object.values(BRACKET_PAIRS).includes(charBefore)) {
+        // Just delete the character between brackets normally
+        target.value = value.substring(0, pos - 1) + value.substring(pos);
+        target.selectionStart = pos - 1;
+        target.selectionEnd = pos - 1;
+        event.preventDefault();
+        updateBracketHighlighting(target);
+        return;
+      }
+      
+      // Case 2: Deleting an entire bracket pair (like deleting '(' when facing ')')
       if (BRACKET_PAIRS[charBefore] && BRACKET_PAIRS[charBefore] === charAfter) {
         target.value = value.substring(0, pos - 1) + value.substring(pos + 1);
         target.selectionStart = pos - 1;
@@ -245,13 +259,12 @@ function handleKeyDown(event) {
     const pos = target.selectionStart;
     
     if (pos === target.selectionEnd) {
-      const charBefore = value[pos];
+      const charAtPos = value[pos];
       const charAfter = value[pos + 1];
       
-      if (BRACKET_PAIRS[charBefore] && BRACKET_PAIRS[charBefore] === charAfter) {
+      if (charAtPos && BRACKET_PAIRS[charAtPos] && BRACKET_PAIRS[charAtPos] === charAfter) {
         target.value = value.substring(0, pos) + value.substring(pos + 2);
-        target.selectionStart = pos;
-        target.selectionEnd = pos;
+        target.selectionStart = target.selectionEnd = pos;
         event.preventDefault();
         updateBracketHighlighting(target);
         return;
@@ -277,6 +290,12 @@ function handleKeyDown(event) {
         return;
       }
     }
+  }
+  
+  if (event.key === 'Enter') {
+    setTimeout(() => {
+      updateBracketHighlighting(target);
+    }, 0);
   }
   
   updateBracketHighlighting(target);
@@ -377,7 +396,53 @@ function findClosingBracketPosition(target) {
 function updateBracketHighlighting(target) {
   if (!isEnabled) return;
   
-  if (isCursorInsideBrackets(target)) {
+  // If the input is empty or has no value, it should never be highlighted
+  if (!target.value || target.value.length === 0) {
+    target.style.backgroundColor = FOCUS_BG_COLOR;
+    return;
+  }
+  
+  const pos = target.selectionStart;
+  const value = target.value;
+  let isBetweenBrackets = false;
+  
+  for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
+    if (open === close) {
+      // For same-character pairs (like quotes)
+      let count = 0;
+      for (let i = 0; i < pos; i++) {
+        if (value[i] === open) count++;
+      }
+      if (count % 2 === 1) {
+        isBetweenBrackets = true;
+        break;
+      }
+    } else {
+      // For different-character pairs (like parentheses)
+      let balance = 0;
+      for (let i = 0; i < pos; i++) {
+        if (value[i] === open) balance++;
+        if (value[i] === close) balance--;
+      }
+      if (balance > 0) {
+        let closingPos = -1;
+        for (let i = pos; i < value.length; i++) {
+          if (value[i] === open) balance++;
+          if (value[i] === close) balance--;
+          if (balance === 0) {
+            closingPos = i;
+            break;
+          }
+        }
+        if (closingPos !== -1) {
+          isBetweenBrackets = true;
+          break;
+        }
+      }
+    }
+  }
+  
+  if (isBetweenBrackets) {
     target.style.backgroundColor = BRACKET_BG_COLOR;
   } else {
     target.style.backgroundColor = FOCUS_BG_COLOR;
