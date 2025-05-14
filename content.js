@@ -9,8 +9,8 @@ const BRACKET_PAIRS = {
 };
 const FOCUS_BG_COLOR = '#b8e6b8';
 const BRACKET_BG_COLOR = '#ffffcc';
-const TEXT_COLOR = '#003300';
-const PLACEHOLDER_COLOR = '#b3d9b3';
+const TEXT_COLOR = '#003300'; // Dark green (unchanged)
+const PLACEHOLDER_COLOR = '#336633'; // New lighter green for placeholders
 
 function initializeEventListeners() {
   document.addEventListener('focusin', handleFocusIn);
@@ -252,31 +252,38 @@ function handleKeyDown(event) {
   if (!isEnabled) return;
   
   const target = event.target;
+  const value = target.value;
+  const pos = target.selectionStart;
   
   if (event.key === 'Tab') {
-    const value = target.value;
-    const pos = target.selectionStart;
-    
     if (isCursorInsideBrackets(target)) {
       const closingPos = findClosingBracketPosition(target);
       if (closingPos !== -1) {
-        // Move cursor to after closing bracket plus one space
-        let newCursorPos = closingPos + 1;
+        // Always ensure the pattern: ") " (closing bracket + single space)
+        let newValue = value;
         
-        // Ensure there's a space after the closing bracket
-        if (value.length <= newCursorPos || value[newCursorPos] !== ' ') {
-          target.value = value.substring(0, newCursorPos) + ' ' + value.substring(newCursorPos);
-          newCursorPos++;
+        // If we're at "(X_)", we want to become "(X) _"
+        if (value.substring(closingPos, closingPos + 2) !== ") ") {
+          newValue = value.substring(0, closingPos + 1) + " " + value.substring(closingPos + 1);
         }
         
-        target.selectionStart = newCursorPos;
-        target.selectionEnd = newCursorPos;
+        target.value = newValue;
+        // Position cursor after the space
+        target.selectionStart = closingPos + 2;
+        target.selectionEnd = closingPos + 2;
         event.preventDefault();
         updateBracketHighlighting(target);
         return;
       }
     }
     // Allow normal tab behavior if not between brackets
+  }
+  
+  // Keep existing navigation key handler
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+    setTimeout(() => {
+      updateBracketHighlighting(target);
+    }, 0);
   }
   
   if (event.key === 'Backspace') {
@@ -310,13 +317,6 @@ function handleKeyDown(event) {
         return;
       }
     }
-  }
-  
-// Handle arrow keys and other cursor-moving keys
-  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
-    setTimeout(() => {
-      updateBracketHighlighting(target);
-    }, 0);
   }
   
   if (event.key === 'Delete') {
@@ -441,11 +441,6 @@ function findClosingBracketPosition(target) {
 function updateBracketHighlighting(target) {
   if (!isEnabled || !target) return;
   
-  if (!target.value || target.value.length === 0) {
-    target.style.backgroundColor = FOCUS_BG_COLOR;
-    return;
-  }
-  
   const pos = target.selectionStart;
   const value = target.value;
   
@@ -470,13 +465,11 @@ function updateBracketHighlighting(target) {
         if (value[i] === close) balance--;
       }
       if (balance > 0) {
-        for (let i = pos; i < value.length; i++) {
-          if (value[i] === close) {
-            isBetweenBrackets = true;
-            break;
-          }
+        const closingPos = findClosingBracketPosition(target);
+        if (closingPos !== -1 && pos <= closingPos) {
+          isBetweenBrackets = true;
+          break;
         }
-        if (isBetweenBrackets) break;
       }
     }
   }
@@ -491,7 +484,7 @@ function isTextInput(element) {
          (element.isContentEditable && element.getAttribute('role') === 'textbox');
 }
 
-// Inject CSS for placeholder styling
+// Replace the existing style injection code in content.js with this:
 const style = document.createElement('style');
 style.textContent = `
   input::placeholder, textarea::placeholder {
@@ -502,6 +495,20 @@ style.textContent = `
   [contenteditable][role="textbox"]:empty::before {
     color: var(--placeholder-color, inherit) !important;
     opacity: 1 !important;
+  }
+
+  /* Add cursor styling for text inputs */
+  input[type="text"], 
+  input[type="search"], 
+  input[type="email"], 
+  input[type="password"], 
+  textarea {
+    caret-color: #2E7D32 !important; /* Darker green for better visibility */
+  }
+
+  /* Add cursor styling for contenteditable elements */
+  [contenteditable][role="textbox"] {
+    caret-color: #2E7D32 !important;
   }
 `;
 document.head.appendChild(style);
