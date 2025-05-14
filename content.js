@@ -253,6 +253,32 @@ function handleKeyDown(event) {
   
   const target = event.target;
   
+  if (event.key === 'Tab') {
+    const value = target.value;
+    const pos = target.selectionStart;
+    
+    if (isCursorInsideBrackets(target)) {
+      const closingPos = findClosingBracketPosition(target);
+      if (closingPos !== -1) {
+        // Move cursor to after closing bracket plus one space
+        let newCursorPos = closingPos + 1;
+        
+        // Ensure there's a space after the closing bracket
+        if (value.length <= newCursorPos || value[newCursorPos] !== ' ') {
+          target.value = value.substring(0, newCursorPos) + ' ' + value.substring(newCursorPos);
+          newCursorPos++;
+        }
+        
+        target.selectionStart = newCursorPos;
+        target.selectionEnd = newCursorPos;
+        event.preventDefault();
+        updateBracketHighlighting(target);
+        return;
+      }
+    }
+    // Allow normal tab behavior if not between brackets
+  }
+  
   if (event.key === 'Backspace') {
     const value = target.value;
     const pos = target.selectionStart;
@@ -354,40 +380,22 @@ function isCursorInsideBrackets(target) {
   
   for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
     if (open === close) {
+      // For same-character pairs (like quotes)
       let countBefore = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) countBefore++;
       }
-      
-      if (countBefore % 2 === 1) {
-        let countAfter = 0;
-        for (let i = pos; i < value.length; i++) {
-          if (value[i] === close) {
-            countAfter++;
-            break;
-          }
-        }
-        if (countAfter > 0) return true;
-      }
+      if (countBefore % 2 === 1) return true;
     } else {
-      let openCount = 0;
-      let closeCount = 0;
-      
+      // For different-character pairs (like parentheses)
+      let balance = 0;
       for (let i = 0; i < pos; i++) {
-        if (value[i] === open) openCount++;
-        if (value[i] === close) closeCount++;
+        if (value[i] === open) balance++;
+        if (value[i] === close) balance--;
       }
-      
-      if (openCount > closeCount) {
-        for (let i = pos; i < value.length; i++) {
-          if (value[i] === close) {
-            return true;
-          }
-        }
-      }
+      if (balance > 0) return true;
     }
   }
-  
   return false;
 }
 
@@ -397,11 +405,11 @@ function findClosingBracketPosition(target) {
   
   for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
     if (open === close) {
+      // Handle same-character wrappers (like quotes)
       let count = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) count++;
       }
-      
       if (count % 2 === 1) {
         for (let i = pos; i < value.length; i++) {
           if (value[i] === close) {
@@ -410,17 +418,16 @@ function findClosingBracketPosition(target) {
         }
       }
     } else {
+      // Handle different-character pairs
       let balance = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) balance++;
         if (value[i] === close) balance--;
       }
-      
       if (balance > 0) {
         for (let i = pos; i < value.length; i++) {
           if (value[i] === open) balance++;
           if (value[i] === close) balance--;
-          
           if (balance === 0) {
             return i;
           }
@@ -428,14 +435,12 @@ function findClosingBracketPosition(target) {
       }
     }
   }
-  
   return -1;
 }
 
 function updateBracketHighlighting(target) {
   if (!isEnabled || !target) return;
   
-  // Clear any existing highlight if input is empty
   if (!target.value || target.value.length === 0) {
     target.style.backgroundColor = FOCUS_BG_COLOR;
     return;
@@ -443,12 +448,12 @@ function updateBracketHighlighting(target) {
   
   const pos = target.selectionStart;
   const value = target.value;
-  let isBetweenBrackets = false;
   
-  // Check all bracket types
+  // Check if cursor is between matching brackets
+  let isBetweenBrackets = false;
   for (const [open, close] of Object.entries(BRACKET_PAIRS)) {
     if (open === close) {
-      // Handle same-character wrappers (like quotes)
+      // Handle same-character wrappers
       let count = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) count++;
@@ -458,14 +463,12 @@ function updateBracketHighlighting(target) {
         break;
       }
     } else {
-      // Handle different-character pairs (like parentheses)
+      // Handle different-character pairs
       let balance = 0;
       for (let i = 0; i < pos; i++) {
         if (value[i] === open) balance++;
         if (value[i] === close) balance--;
       }
-      
-      // Only highlight if we're between matching pair
       if (balance > 0) {
         for (let i = pos; i < value.length; i++) {
           if (value[i] === close) {
@@ -478,7 +481,6 @@ function updateBracketHighlighting(target) {
     }
   }
   
-  // Apply highlighting
   target.style.backgroundColor = isBetweenBrackets ? BRACKET_BG_COLOR : FOCUS_BG_COLOR;
 }
 
