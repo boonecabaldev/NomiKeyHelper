@@ -1,3 +1,4 @@
+
 const wordData = [
   {
     category: "Positive Adjectives - Basic",
@@ -1225,6 +1226,7 @@ const wordData = [
     ]
   }
 ];
+
 let selectedTerms = [];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1233,14 +1235,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const wordList = document.getElementById("word-list");
   wordList.innerHTML = ""; // Clear any existing content
 
+  // Render accordion items
   wordData.forEach((category, index) => {
     const accordionItem = document.createElement("div");
     accordionItem.className = "accordion-item";
     accordionItem.innerHTML = `
-      <div class="accordion-header ${index === 0 ? "active" : ""}" data-index="${index}">
+      <div class="accordion-header" data-index="${index}">
         ${category.category}
       </div>
-      <div class="accordion-content ${index === 0 ? "open" : ""}">
+      <div class="accordion-content">
         ${category.terms
           .map(
             (term) => `
@@ -1258,11 +1261,51 @@ document.addEventListener("DOMContentLoaded", () => {
     wordList.appendChild(accordionItem);
   });
 
+  // Function to save accordion and popup state
+  const saveState = (index, accordionScrollTop, popupScrollTop) => {
+    chrome.storage.sync.set({
+      activeAccordionIndex: index,
+      accordionScrollTop: accordionScrollTop,
+      popupScrollTop: popupScrollTop
+    });
+  };
+
+  // Function to restore accordion and popup state
+  const restoreState = () => {
+    chrome.storage.sync.get(
+      ["activeAccordionIndex", "accordionScrollTop", "popupScrollTop"],
+      (result) => {
+        const activeIndex = result.activeAccordionIndex || 0;
+        const accordionScrollTop = result.accordionScrollTop || 0;
+        const popupScrollTop = result.popupScrollTop || 0;
+
+        // Open the saved accordion section
+        const headers = document.querySelectorAll(".accordion-header");
+        const contents = document.querySelectorAll(".accordion-content");
+
+        // Close all sections
+        headers.forEach((header) => header.classList.remove("active"));
+        contents.forEach((content) => content.classList.remove("open"));
+
+        // Open the saved section
+        if (headers[activeIndex]) {
+          headers[activeIndex].classList.add("active");
+          contents[activeIndex].classList.add("open");
+          // Restore accordion scroll position
+          contents[activeIndex].scrollTop = accordionScrollTop;
+        }
+
+        // Restore popup scroll position
+        window.scrollTo({ top: popupScrollTop, behavior: "smooth" });
+      }
+    );
+  };
+
   // Add click event listeners for accordion headers
   const headers = document.querySelectorAll(".accordion-header");
   headers.forEach((header) => {
     header.addEventListener("click", () => {
-      const index = header.getAttribute("data-index");
+      const index = parseInt(header.getAttribute("data-index"));
       const content = header.nextElementSibling;
       const isOpen = content.classList.contains("open");
 
@@ -1276,9 +1319,46 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!isOpen) {
         content.classList.add("open");
         header.classList.add("active");
+        // Save the active accordion index and reset scroll positions
+        saveState(index, 0, window.scrollY);
+      } else {
+        // If closing, save index as -1 to indicate no active section
+        saveState(-1, 0, window.scrollY);
       }
     });
   });
+
+  // Add scroll event listeners for accordion content
+  const contents = document.querySelectorAll(".accordion-content");
+  contents.forEach((content, index) => {
+    let scrollTimeout;
+    content.addEventListener("scroll", () => {
+      // Debounce scroll event to avoid excessive storage writes
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (content.classList.contains("open")) {
+          saveState(index, content.scrollTop, window.scrollY);
+        }
+      }, 100); // Wait 100ms after scrolling stops
+    });
+  });
+
+  // Add scroll event listener for popup
+  let popupScrollTimeout;
+  window.addEventListener("scroll", () => {
+    clearTimeout(popupScrollTimeout);
+    popupScrollTimeout = setTimeout(() => {
+      const activeIndex = Array.from(document.querySelectorAll(".accordion-header")).findIndex((header) =>
+        header.classList.contains("active")
+      );
+      const activeContent = activeIndex !== -1 ? document.querySelectorAll(".accordion-content")[activeIndex] : null;
+      const accordionScrollTop = activeContent ? activeContent.scrollTop : 0;
+      saveState(activeIndex, accordionScrollTop, window.scrollY);
+    }, 100); // Wait 100ms after scrolling stops
+  });
+
+  // Restore state on load
+  restoreState();
 
   // Function to copy text to clipboard
   const copyToClipboard = (str) => {
@@ -1306,32 +1386,31 @@ document.addEventListener("DOMContentLoaded", () => {
       // Provide user feedback
       const feedback = document.createElement("div");
       feedback.textContent = selectedTerms.join("");
-      feedback.classList.add("copy-feedback"); // Add a class for styling
+      feedback.classList.add("copy-feedback");
       card.appendChild(feedback);
 
       // Remove the feedback message after a short delay
       setTimeout(() => {
         feedback.remove();
-      }, 2500); // 1.5 seconds
+      }, 2500);
     });
     card.addEventListener("contextmenu", async (event) => {
-      event.preventDefault(); // Prevent the default context menu
+      event.preventDefault();
       console.log("Right-click detected at:", new Date().toISOString());
 
       selectedTerms = [];
-
       copyToClipboard("(normal) ");
 
       // Provide user feedback
       const feedback = document.createElement("div");
       feedback.textContent = "(normal)";
-      feedback.classList.add("copy-feedback"); // Add a class for styling
+      feedback.classList.add("copy-feedback");
       card.appendChild(feedback);
 
       // Remove the feedback message after a short delay
       setTimeout(() => {
         feedback.remove();
-      }, 2500); // 1.5 seconds
+      }, 2500);
     });
   });
 });

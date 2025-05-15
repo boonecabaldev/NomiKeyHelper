@@ -1,4 +1,4 @@
-# ToDo
+ ToDo
 
 This document describes a subset of the functionality of the NomiKeyHelper Chrome browser extension.
 
